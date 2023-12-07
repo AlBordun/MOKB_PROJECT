@@ -6,22 +6,20 @@ import './App.css';
 import FormModal from '../src/components/FormModal/FormModal';
 import axios from "axios";
 import AppPagination from "./components/Pagination";
-// export const UserContext = createContext();
+import {createTheme} from "@mui/system";
 
-// const router = createBrowserRouter([
-//     { path: '/patients', element: <PatientsTable /> },
-// ])
+
+
 function App() {
-    const [page, setPage] = React.useState(0);
-    const [rowsPerPage, setRowsPerPage] = React.useState(5);
-    return (
+    const [isModalActive, setModalActive] = useState(false);
 
-        // <div>
-        //     <RouterProvider router={router} />
-        // </div>
-        // // <Suspense fallback={<PreLoad />}>
-        // // <Route exact path="*">
-        // // <PageNotFound />
+    const handleModalOpen = () => {
+        setModalActive(true);
+    };
+    const handleModalClose = () => {
+        setModalActive(false);
+    };
+    return (
         <div>
             <Header
                 onProtocolClick={() => {}}
@@ -31,9 +29,6 @@ function App() {
 
             <PatientsTable
             />
-            {/*<Routes>*/}
-            {/*    <Route path="/" element={<PatientsTable/>}/>*/}
-            {/*</Routes>*/}
         </div>
     );
 }
