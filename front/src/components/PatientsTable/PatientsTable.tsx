@@ -1,7 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {
-    IconButton, Box, Typography, Modal, Pagination, LinearProgress, TextField, Toolbar, Button
+    IconButton, Box, Typography, Modal, Pagination, LinearProgress, TextField, Toolbar, Button, Grid, Collapse
 } from '@mui/material';
 import {styled} from '@mui/material/styles';
 import InfoIcon from '@mui/icons-material/Info';
@@ -11,11 +11,13 @@ import {
     GridRenderCellParams,
     GridToolbarContainer,
     GridToolbarExport,
-    GridToolbar
+    GridToolbar,
 } from '@mui/x-data-grid';
 import {Patient} from "../Patient/Patient";
-import AppPagination from "../Pagination";
 import {createTheme, ThemeProvider} from "@mui/system";
+import {GridRowParams} from "@mui/x-data-grid-pro";
+import ExpandLessIcon from '@mui/icons-material/ExpandLess';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 
 
 const StyledGridOverlay = styled('div')(({theme}) => ({
@@ -62,6 +64,12 @@ const PatientsTable = () => {
     const [open, setOpen] = React.useState(false);
     const [selectedRow, setSelectedRow] = React.useState<any>(null);
     const [patients, setPatients] = useState<Patient[]>([]);
+    const [filter, setFilter] = useState('');
+    const [expandedRows, setExpandedRows] = useState<{ [key: number]: boolean }>({});
+    const [page, setPage] = useState<number>(0);
+    const [pageSize, setPageSize] = useState<number>(5);
+    console.log(pageSize)
+
     useEffect(() => {
         axios.get('http://localhost:8080/api/patients/find_all')
             .then(response => {
@@ -74,15 +82,30 @@ const PatientsTable = () => {
     }, []);
 
     const columns: GridColDef[] = [
+        // {
+        //     field: 'expand',
+        //     headerName: 'Раскрыть',
+        //     renderCell: (params: GridRenderCellParams) => (
+        //         <div>
+        //             <IconButton onClick={() => toggleRow(params.row.id)}>
+        //                 {expandedRows[params.row.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+        //             </IconButton>
+        //             <Collapse in={expandedRows[params.row.id]} timeout="auto" unmountOnExit>
+        //                 <YourCustomComponent data={params.row} />
+        //             </Collapse>
+        //         </div>
+        //     ),
+        //     width: 80,
+        //     sortable: false,
+        // },
         {
-            field: 'details',
-            headerName: 'Детали',
+            field: 'expand',
+            headerName: 'Раскрыть',
             renderCell: (params: GridRenderCellParams) => (
-                <IconButton onClick={() => handleOpen(params.row)}>
-                    <InfoIcon style={{color: '#1976d2'}}/>
+                <IconButton onClick={() => toggleRow(params.row.id)}>
+                    {expandedRows[params.row.id] ? <ExpandLessIcon /> : <ExpandMoreIcon />}
                 </IconButton>
             ),
-
             width: 80,
             sortable: false,
         },
@@ -102,6 +125,19 @@ const PatientsTable = () => {
         {field: 'insurance_policy', headerName: 'Полис', width: 150},
 
     ]
+    // const YourCustomComponent = ({ data: Patient }) => {
+    //     return (
+    //         <Box p={2} bgcolor="#f5f5f5" boxShadow={1}>
+    //             <Typography variant="h6">Детали Пациента</Typography>
+    //             <Typography>Имя: {data.first_name}</Typography>
+    //             <Typography>Фамилия: {data.last_name}</Typography>
+    //             {/* Добавьте здесь другие поля, если это необходимо */}
+    //         </Box>
+    //     );
+    // };
+    function createData(patient: Patient): Patient {
+        return patient;
+    }
 
     const handleOpen = (row: any) => {
         setSelectedRow(row);
@@ -112,22 +148,114 @@ const PatientsTable = () => {
         setOpen(false);
     }
 
-    function createData(patient: Patient): Patient {
-        return patient;
-    }
-
     // Функция для обновления состояния поискового запроса
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearchText(event.target.value);
     };
 
-    // Фильтрация данных на основе поискового запроса
-    const filteredRows = patients.filter((patients) => {
-        return patients.first_name.toLowerCase().includes(searchText.toLowerCase());
+    const handlePageSizeChange = (params: any) => {
 
+        setPageSize(params.pageSize);
+    };
+
+    const handlePageChange = (params: any) => {
+        setPage(params.page);
+    };
+
+    const filterByDocumentType = (type: string) => {
+        setFilter(type);
+    };
+
+    // Фильтрация данных на основе поискового запроса
+    const filteredRows = patients.filter((patient) => {
+        return (filter ? patient.document_type === filter : true) &&
+            patient.first_name.toLowerCase().includes(searchText.toLowerCase());
     });
+    const toggleRow = (rowId: number) => {
+        setExpandedRows(prevExpandedRows => ({
+            ...prevExpandedRows,
+            [rowId]: !prevExpandedRows[rowId]
+        }));
+    };
+    const handleRowClick = (params: GridRowParams) => {
+        setSelectedRow(params.row);
+        setOpen(true);
+    };
     const MyCustomToolbar = () => (
         <Toolbar>
+            <Box sx={{ display: 'flex', flexGrow: 1 , }}>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                        mr: 1,
+                        color: 'darkcyan',
+                        borderColor: 'darkcyan',
+                        borderRadius: '16px',
+                        '&:hover': {
+                            backgroundColor: 'darkcyan', // Цвет фона при наведении
+                            color: 'white', // Цвет текста при наведении
+                            borderColor: 'darkcyan'
+                            }
+                }}
+                    onClick={() => filterByDocumentType('Направления')}
+                >
+                    Направления
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{ mr: 1,
+                        color: '#2196f3',
+                        borderColor: '#2196f3',
+                        borderRadius: '16px',
+                        '&:hover': {
+                            backgroundColor: '#2196f3', // Цвет фона при наведении
+                            color: 'white', // Цвет текста при наведении
+                            borderColor: '#2196f3'
+                        }
+                }}
+                    onClick={() => filterByDocumentType('Протоколы')}
+                >
+                    Протоколы
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                        mr: 1,
+                        color: '#e91e63',
+                        borderColor: '#e91e63',
+                        borderRadius: '16px',
+                        '&:hover': {
+                            backgroundColor: '#e91e63', // Цвет фона при наведении
+                            color: 'white', // Цвет текста при наведении
+                            borderColor: '#e91e63'
+                        }
+                }}
+                    onClick={() => filterByDocumentType('Талоны')}
+                >
+                    Талоны
+                </Button>
+                <Button
+                    variant="outlined"
+                    size="small"
+                    sx={{
+                        color: 'black',
+                        borderColor: 'black',
+                        borderRadius: '16px',
+                        '&:hover': {
+                            backgroundColor: 'black', // Цвет фона при наведении
+                            color: 'white', // Цвет текста при наведении
+                            borderColor: 'black'
+                        }
+                }}
+                    onClick={() => filterByDocumentType('')}
+                >
+                    Пациенты
+                </Button>
+            </Box>
+
             <Box
                 component="form"
                 sx={{
@@ -150,57 +278,108 @@ const PatientsTable = () => {
         </Toolbar>
     );
 
+    console.log(pageSize)
     return (
         <>
             <MyCustomToolbar/>
-            <div style={{height: '400', width: '100%'}}>
+            <div style={{ height: '100%', width: '100%' }}>
+            {filteredRows.length > 0 ? (
                 <DataGrid
                     sx={{
                         '.MuiDataGrid-columnHeader': {
                             color: '#1565c0',
                         },
                     }}
+                    // pageSize = {pageSize}
+                    // pagination
+                    // paginationMode="server"
+                    // page={page}
+                    // onPageChange={handlePageChange}
+                    // onPageSizeChange={handlePageSizeChange}
                     rows={filteredRows}
                     columns={columns}
-                    slots={{
-                        loadingOverlay: LinearProgress,
-
-                    }}
-                    {...patients}
+                    onRowClick={handleRowClick}
                     initialState={{
                         pagination: {
-                            paginationModel: {page: 0, pageSize: 10},
+                            paginationModel: { page: 0, pageSize: 5 },
                         },
                     }}
                     pageSizeOptions={[5, 10, 25, 50, 100, 500]}
                     checkboxSelection
 
                 />
-                {/*<AppPagination count={patients.length} patients = {patients} />*/}
-                <AppPagination count={-1} patients={patients}/>
+            ) : (
+                <div>Нет пациентов с типом документа: {filter}</div>
+            )}
             </div>
-            <Modal
-                open={open}
-                onClose={handleClose}
-                aria-labelledby="modal-modal-title"
-                aria-describedby="modal-modal-description"
-            >
-                <Box
-                    sx={{position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', width: 400, bgcolor: 'background.paper', boxShadow: 24, p: 4}}>
-                    <Typography id="modal-modal-title" variant="h6" component="h2">
-                        Дополнительная информация
-                    </Typography>
-                    {selectedRow ? (
-                        <Box sx={{mt: 2}}>
-                            <Typography>Имя: {selectedRow.first_name || 'Не указано'}</Typography>
-                            <Typography>Фамилия: {selectedRow.last_name || 'Не указано'}</Typography>
-                            {/* Добавьте дополнительные поля для отображения */}
-                        </Box>
-                    ) : (
-                        <Typography sx={{mt: 2}}>Информация не доступна</Typography>
-                    )}
-                </Box>
-            </Modal>
+            {/*<div style={{height: '400', width: '100%'}}>*/}
+                {/*{filteredRows.length > 0 ? (*/}
+                {/*<DataGrid*/}
+                {/*    sx={{*/}
+                {/*        '.MuiDataGrid-columnHeader': {*/}
+                {/*            color: '#1565c0',*/}
+                {/*        },*/}
+                {/*    }}*/}
+                {/*    rows={filteredRows}*/}
+                {/*    columns={columns}*/}
+                {/*    pageSize = {pageSize}*/}
+                {/*    pageSizeOptions={[5, 10, 25, 50, 100, 500]}*/}
+                {/*    pagination*/}
+                {/*    paginationMode="server"*/}
+                {/*    checkboxSelection*/}
+                {/*    page={page}*/}
+                {/*    onPageChange={handlePageChange}*/}
+                {/*    onPageSizeChange={handlePageSizeChange}*/}
+                {/*    // initialState={{*/}
+                {/*    //     pagination: {*/}
+                {/*    //         paginationModel: { page: 0, pageSize: 10 },*/}
+                {/*    //     },*/}
+                {/*    // }}*/}
+                {/*/>*/}
+                {/*) : (*/}
+                {/*    <div>Нет пациентов с типом документа: {filter}</div>*/}
+                {/*)}*/}
+            {/*</div>*/}
+            {/*<Modal*/}
+            {/*    open={open}*/}
+            {/*    onClose={handleClose}*/}
+            {/*    aria-labelledby="modal-modal-title"*/}
+            {/*    aria-describedby="modal-modal-description"*/}
+            {/*>*/}
+            {/*    <Box*/}
+            {/*        sx={{*/}
+            {/*            position: 'absolute',*/}
+            {/*            top: '50%',*/}
+            {/*            left: '50%',*/}
+            {/*            transform: 'translate(-50%, -50%)',*/}
+            {/*            width: 400,*/}
+            {/*            bgcolor: 'background.paper',*/}
+            {/*            boxShadow: 24,*/}
+            {/*            p: 4*/}
+            {/*        }}>*/}
+            {/*        <Typography id="modal-modal-title" variant="h6" component="h2">*/}
+            {/*            Дополнительная информация*/}
+            {/*        </Typography>*/}
+            {/*        {selectedRow ? (*/}
+            {/*            <Box sx={{mt: 2}}>*/}
+            {/*                <Typography>Имя: {selectedRow.first_name || 'Не указано'}</Typography>*/}
+            {/*                <Typography>Фамилия: {selectedRow.last_name || 'Не указано'}</Typography>*/}
+            {/*                /!* Добавьте дополнительные поля для отображения *!/*/}
+            {/*            </Box>*/}
+            {/*        ) : (*/}
+            {/*            <Typography sx={{mt: 2}}>Информация не доступна</Typography>*/}
+            {/*        )}*/}
+            {/*    </Box>*/}
+            {/*</Modal>*/}
+            {/*<TablePagination*/}
+            {/*    component="div"*/}
+            {/*    count={100}*/}
+            {/*    page={page}*/}
+            {/*    onPageChange={handleChangePage}*/}
+            {/*    rowsPerPage={rowsPerPage}*/}
+            {/*    onRowsPerPageChange={handleChangeRowsPerPage}*/}
+            {/*/>*/}
+
         </>
     );
 }
