@@ -13,14 +13,17 @@ import {
     Modal,
     Select,
     SelectChangeEvent,
-    TextField
+    TextField, IconButton,
 } from '@mui/material';
 import {AdapterDayjs} from '@mui/x-date-pickers/AdapterDayjs';
 import {
     LocalizationProvider,
     DateField
 } from "@mui/x-date-pickers";
-
+import CloseIcon from '@mui/icons-material/Close';
+import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
+import FileCopyOutlinedIcon from '@mui/icons-material/FileCopyOutlined';
+import PrintOutlinedIcon from '@mui/icons-material/PrintOutlined';
 
 // Определение интерфейса для свойств FormModal
 interface FormModalProps {
@@ -44,9 +47,8 @@ const FormModal: React.FC<FormModalProps> = ({show, onClose, onSave, patient, co
     const rootRef = useRef<HTMLDivElement>(null)
     const [gender, setGender] = React.useState('');
     const [selectedValue, setSelectedValue] = useState('');
-    // const [options, setOptions] = useState([]); // Состояние для хранения опций
     const [options, setOptions] = useState<string[]>([])
-    const [value, setValue] = React.useState<Dayjs | null>(dayjs('00-00-0000'));
+    const [value, setValue] = React.useState<Dayjs | null>(dayjs());
 
     useEffect(() => {
         console.log('Options updated:', options);
@@ -66,24 +68,6 @@ const FormModal: React.FC<FormModalProps> = ({show, onClose, onSave, patient, co
             }
         }
     };
-
-    // useEffect(() => {
-    //     // Функция для запроса данных
-    //     const fetchData = async () => {
-    //         try {
-    //             const tag = 10; // Тэг для пола
-    //             const response = await fetch('http://localhost:8080/api/reference/ref_lists?tag=10');
-    //             const data: OptionItem[] = await response.json();
-    //             console.log(data);
-    //             const optionLabels = data.map(item => item.text);
-    //             setOptions(optionLabels); // Сохранение полученных данных в состоянии
-    //         } catch (error) {
-    //             console.error('Ошибка при загрузке данных:', error);
-    //         }
-    //     };
-    //
-    //     fetchData();
-    // }, []); // Пустой массив зависимостей гарантирует, что запрос выполняется один раз при монтировании
 
     useEffect(() => {
         const fetchData = async () => {
@@ -217,153 +201,201 @@ const FormModal: React.FC<FormModalProps> = ({show, onClose, onSave, patient, co
     }
     console.log('Rendering FormModal');
     return (
-        <div>
+        // Этот контейнер Grid служит для центрирования всей формы и ее элементов.
+        <Grid container spacing={2} sx={{
+            // display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+        }}>
+            {/*Форма, управляющая отправкой данных и обработкой событий формы*/}
             <form onSubmit={handleSubmit}>
-                <Modal open={show} onClose={onClose} disableScrollLock={true}>
-                    <Box
-                        component="form"
-                        sx={{
-                            display: 'flex',
-                            width: 1000, // фиксированная ширина, например, 500px
-                            height: 600, // фиксированная высота, например, 600px
-                            overflow: 'auto',
-                            position: 'absolute',
-                            maxHeight: '90vh',
-                            top: '50%',
-                            left: '50%',
-                            transform: 'translate(-50%, -50%)',
-                            bgcolor: 'white',
-                            boxShadow: 24,
-                            p: 4,
+                {/*Модальное окно, внутри которого находится содержимое формы.*/}
+                <Modal open={show} onClose={onClose}
+                       disableScrollLock={true}
+                >
+                    {/*Главный Grid контейнер внутри модального окна для структурирования контента.*/}
+                    <Grid container sx={{
+                        overflow: 'auto',
+                        position: 'absolute', // Абсолютное позиционирование для точного контроля
+                        top: '50%', // Позиционирование относительно верха
+                        left: '50%', // Позиционирование относительно левого края
+                        transform: 'translate(-50%, -50%)', // Смещение для точного центрирования
+                        // width: '60%', // Ширина модального окна
+                        width: 'auto', // Автоматическая ширина, адаптируется к содержимому
+                        height: 'auto', // Высота модального окна
+                        bgcolor: 'background.paper', // Цвет фона
+                        boxShadow: 24, // Тень
+                        p: 3, // Внутренний отступ
+                        maxHeight: '90vh', // Максимальная высота
+                        borderRadius: '16px' // Скругление
+                    }}>
+                        <IconButton
+                            onClick={handleModalClose}
+                            sx={{
+                                position: 'absolute',
+                                right: 8,
+                                top: 8,
+                                color: (theme) => theme.palette.grey[500],
+                                '&:hover': {
+                                    color: 'red', // Цвет при наведении
+                                    transform: 'rotate(90deg)', // Вращение на 90 градусов при наведении
+                                    transition: 'transform 0.3s ease-in-out', // Анимация вращения
+                                }
+                            }}>
+                            <CloseIcon/>
+                        </IconButton>
+                        <Grid xs={12}
+                              sx={{
+                                  padding: '12px',
+
+                              }}
+                        >
+                            {/*Номер*/}
+                            <TextField disabled id="outlined-disabled" label="№" fullWidth
+                                       sx={{
+                                           maxWidth: 80,
+                                           margin: '6px',
+                                       }}
+                            />
+                            <FormControl fullWidth sx={{
+                                maxWidth: 120,
+                                margin: '6px',
+                            }}
+
+                            >
+                                {/*Категория*/}
+                                <InputLabel id="populationCategory">Категория Населения</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    value={gender}
+                                    onChange={handleChange}
+                                    label="Gender"
+                                >
+                                    {options.map((option, index) => (
+                                        <MenuItem key={index} value={option}>{option}</MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+                        <Grid item xs={12} sm={6} sx={{
+
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: '12px',
+
                             '& .MuiTextField-root': {
-                                margin: '5px',
-                                width: '40%',
-                                // padding: '5px',
+                                marginBottom: '6px',
 
                             },
-                            '& .MuiSelect-root': {
-                                margin: '10px',
-                                width: '40%',
-                                padding: '5px',
-
+                            '& .MuiFormControl-root': {
+                                marginBottom: '6px',
                             }
-                        }}
-                    >
-                        <Grid container spacing={0} sx={{
-                            // display: 'flex',
-                            justifyContent: 'center',
-                            alignItems: 'center'
                         }}>
-                            {/* Первая колонка */}
-                            <Grid item xs={12} sm={6} sx={{
-                                padding: '12px',
-                                justifyContent: 'center'
+                            {/*<TextField id="filled-basic" label="Поле" variant="outlined" fullWidth/>*/}
+                            <TextField label="Фамилия" variant="outlined" fullWidth/>
+                            <TextField label="Имя" variant="outlined" fullWidth/>
+                            <TextField label="Отчество" variant="outlined" fullWidth/>
+                            {/*Пол*/}
+                            <FormControl fullWidth sx={{
+                                maxWidth: 120,
                             }}>
-                                {/*Верхние 3 филда*/}
-                                <Grid sx = {{
-                                    width : '450px',
-                                    display: 'flex',
-                                    justifyContent: 'center'
-                                }}>
-                                    {/*Номер*/}
-                                    <TextField disabled id="outlined-disabled" label="№" fullWidth
-                                               sx={{
-                                                   maxWidth: 80,
-                                                   margin: '6px',
-                                               }}
-                                    />
-                                    {/*Категория*/}
-                                    <FormControl fullWidth sx={{
-                                        maxWidth: 120,
-                                        margin: '8px'
-                                    }}>
-                                        <InputLabel id="populationCategory">Категория Населения</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-standard-label"
-                                            id="demo-simple-select-standard"
-                                            value={gender}
-                                            onChange={handleChange}
-                                            label="Gender"
-                                        >
-                                            {options.map((option, index) => (
-                                                <MenuItem key={index} value={option}>{option}</MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                    {/*Пол*/}
-                                    <FormControl fullWidth sx={{
-                                        maxWidth: 120,
-                                        margin: '8px'
-                                    }}>
-                                        <InputLabel id="gender">Пол</InputLabel>
-                                        <Select
-                                            labelId="demo-simple-select-standard-label"
-                                            id="demo-simple-select-standard"
-                                            value={gender}
-                                            onChange={handleChange}
-                                            label="Gender"
-                                        >
-                                            {options.map((option, index) => (
-                                                <MenuItem key={index} value={option}>{option}</MenuItem>
-                                            ))}
-                                        </Select>
-                                    </FormControl>
-                                </Grid>
-                                <TextField id="filled-basic" label="Поле" variant="outlined" fullWidth/>
-                                <TextField label="firstName" variant="outlined" fullWidth/>
-                                <TextField label="lastName" variant="outlined" fullWidth/>
-                                <TextField label="middleName" variant="outlined" fullWidth/>
-                                <TextField label="address" variant="outlined" fullWidth/>
-                                <LocalizationProvider dateAdapter={AdapterDayjs}>
-                                    <DateField
-                                        label="Дата Рождения"
-                                        value={value}
-                                        onChange={(newValue) => setValue(newValue)}
-                                        format="DD-MM-YYYY"
-                                    />
-                                </LocalizationProvider>
-                               <Grid>
-                                <TextField label="Additional Information"
-                                           variant="outlined"
-                                           multiline
-                                           rows={4}
-                                           fullWidth
-                                           sx={{
-                                               width: '500px'
-                                           }}
+                                <InputLabel id="gender">Пол</InputLabel>
+                                <Select
+                                    labelId="demo-simple-select-standard-label"
+                                    id="demo-simple-select-standard"
+                                    value={gender}
+                                    onChange={handleChange}
+                                    label="Gender"
+                                >
+                                    {options.map((option, index) => (
+                                        <MenuItem key={index} value={option}>{option}</MenuItem>
+                                    ))}
+                                </Select>
+
+                            </FormControl>
+                            {/*Дата рождения*/}
+                            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                                <DateField
+                                    label="Дата Рождения"
+                                    value={value}
+                                    onChange={(newValue) => setValue(newValue)}
+                                    format="DD-MM-YYYY"
                                 />
-                               </Grid>
-                            </Grid>
-                            {/* Вторая колонка */}
-                            <Grid item xs={12} sm={6} sx={{
-                                justifyContent: 'center',
-                                alignItems: 'center'
-                            }}>
-                                <TextField label="referralDate" variant="standard" fullWidth/>
-                                <TextField label="snils" variant="standard" fullWidth/>
-                                <TextField label="policyNumber" variant="standard" fullWidth/>
-                                <TextField label="documentType" variant="standard" fullWidth/>
-                                <TextField label="passportSeries" variant="standard" fullWidth/>
-                                <TextField label="passportNumber" variant="standard" fullWidth/>
+                            </LocalizationProvider>
+                            <TextField label="Адрес прописки" variant="outlined" fullWidth/>
+                            <TextField label="Адрес проживания" variant="outlined" fullWidth/>
 
-
-                            </Grid>
                         </Grid>
+                        {/*</Grid>*/}
+                        {/*Вторая колонка для других элементов управления.*/}
+                        {/*Аналогично первой колонке, определяет стилизацию и расположение элементов.*/}
+                        <Grid item xs={12} sm={6} sx={{
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                            padding: '12px',
 
-                        {/* Кнопки */}
-                        <Stack direction="row" spacing={2} justifyContent="center">
-                            {/* Ваши кнопки */}
-                        </Stack>
-                    </Box>
+                            '& .MuiTextField-root': {
+                                marginBottom: '6px',
+                            }
+                        }}>
+                            <TextField label="referralDate" variant="outlined" fullWidth/>
+                            <TextField label="Снилс" variant="outlined" fullWidth/>
+                            <TextField label="Полис" variant="outlined" fullWidth/>
+                            <TextField label="Документ" variant="outlined" fullWidth/>
+                            <TextField label="Серия паспорта" variant="outlined" fullWidth/>
+                            <TextField label="Номер паспорта" variant="outlined" fullWidth/>
+
+                        </Grid>
+                        <Grid item xs={12}
+                              sx={{
+                                  padding: '12px',
+                              }}
+                        >
+                            <TextField
+                                fullWidth
+                                label="Дополнительная информация"
+                                variant="outlined"
+                                multiline
+                                rows={4}
+                            />
+                        </Grid>
+                        {/*Контейнер Stack для кнопок.*/}
+                        {/*Определяет горизонтальное расположение и расстояние между кнопками.*/}
+                        <Grid item xs={12}
+                              sx={{
+                                  padding: '12px',
+                              }}
+                        >
+                            <Stack direction="row" spacing={2} justifyContent="center" alignContent="center"
+                            >
+                                <Button
+                                    onClick={handlePreview}
+                                    variant="outlined"
+                                >
+                                    <VisibilityOutlinedIcon/>
+                                    Предпросмотр</Button>
+
+                                <Button onClick={handleCopyData}
+                                        variant="outlined"
+                                >
+                                    <FileCopyOutlinedIcon/>
+                                    Копировать данные</Button>
+
+
+                                <Button onClick={handlePrint}
+                                        variant="outlined"
+                                >
+                                    <PrintOutlinedIcon/>
+                                    Печать</Button>
+
+                            </Stack>
+                        </Grid>
+                    </Grid>
                 </Modal>
-
-                {/* ... Другие поля, как требуется */}
-
             </form>
-        </div>
-
-    )
-        ;
+        </Grid>
+    );
 
 };
 

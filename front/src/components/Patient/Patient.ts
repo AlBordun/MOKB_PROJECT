@@ -1,6 +1,6 @@
 
 export interface Patient {
-    id: number | string;
+    id: number | string | any;
     [key: string]: any;
     refType: string;
     directionNumber: string;

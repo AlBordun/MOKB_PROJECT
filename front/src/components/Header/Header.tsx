@@ -1,16 +1,16 @@
 import React, {useEffect, useRef, useState} from 'react';
 import 'tailwindcss/tailwind.css';
 // import Button from "../Button/Button";
-import Select from "../Select/Select";
-import Input from "../Input/Input";
 import {
     Box,
-    Button, FormControl, Grid, InputLabel, MenuItem, Modal, SelectChangeEvent, TextField
+    Button, Grid, InputLabel, MenuItem, Modal, SelectChangeEvent, TextField
 } from '@mui/material';
 import {Patient} from "../Patient/Patient";
-import axios from "axios";
 import FormModal from "../FormModal/FormModal";
-
+import IconButton from '@mui/material/IconButton';
+import AddCircleOutlineOutlinedIcon from '@mui/icons-material/AddCircleOutlineOutlined';
+import Tooltip from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
 
 interface HeaderProps {
 
@@ -57,63 +57,56 @@ const Header: React.FC<HeaderProps> = ({onProtocolClick, onReferralClick, onTick
         console.log("Сохраняемые данные:", patientData);
         setIsModalOpen(false); // Закрытие модального окна после сохранения данных
     }
-
+    const CustomIconButton = styled(IconButton)(({ theme }) => ({
+        position: 'absolute',
+        right: theme.spacing(2),
+        top: theme.spacing(2),
+        zIndex: 1000,
+        '&:hover': {
+            color: 'cyan',
+            '& .text': {
+                width: 'auto', // Развернуть текст при наведении
+                opacity: 1, // Сделать текст полностью видимым
+                display: 'inline', // Показать текст
+                fontSize: '2em', // Увеличить размер шрифта текста при наведении
+            }
+        },
+        '& .text': {
+            width: 0, // Скрыть текст по умолчанию
+            overflow: 'hidden',
+            whiteSpace: 'nowrap',
+            opacity: 0,
+            fontSize: '2em', // Увеличить размер шрифта текста
+            marginLeft: theme.spacing(1),
+            // marginLeft: '8px', // Отступ слева от иконки
+            transition: 'width 0.3s ease, opacity 0.3s ease',
+        },
+        transition: 'color 0.3s ease-in-out',
+        fontSize: '96px',
+    }));
     return (
         <>
-            {/*Контейнер хедера*/}
-            <div className=" top-0 w-full p-4 flex justify-center space-x-10 items-center">
-
-                {/* Список элементов */}
-                <Button
-                    onClick={handleOpenModal}
-                    variant="outlined"
-                    sx={{
-                        fontSize: '1.2rem', // Увеличить размер шрифта
-                        padding: '10px 20px', // Добавить padding
-                        width: '200px', // Задать ширину
-                        height: '50px', // Задать высоту
-                        border: '1.5px solid',
-                    }}
-                >
-                    Протокол
-
-                </Button>
-                <Button
-                    onClick={handleOpenModal}
-                    variant="outlined"
-                    sx={{
-                        fontSize: '1.2rem', // Увеличить размер шрифта
-                        padding: '10px 20px', // Добавить padding
-                        width: '200px', // Задать ширину
-                        height: '50px', // Задать высоту
-                        border: '1.5px solid',
-                    }}
-                >Направление
-                </Button>
-                <Button
-                    onClick={handleOpenModal}
-                    variant="outlined"
-                    sx={{
-                        fontSize: '1.2rem', // Увеличить размер шрифта
-                        padding: '10px 20px', // Добавить padding
-                        width: '200px', // Задать ширину
-                        height: '50px', // Задать высоту
-                        border: '1.5px solid',
-                    }}
-                >Талон
-                </Button>
-            </div>
-            {/* Модальное окно, которое отображается, когда isModalOpen истинно */}
-            {isModalOpen && (
-                <FormModal
-                    show={isModalOpen}
-                    onClose={handleCloseModal}
-                    onSave={handleSaveData}
-                    patient={initialPatientData}
-                />
-            )}
-        </>
-    );
+          <Grid sx = {{
+              padding: '60px 20px'
+          }}>  <CustomIconButton onClick={handleOpenModal}>
+                <Tooltip title="Создать" placement="right">
+                    <AddCircleOutlineOutlinedIcon style={{ fontSize: '96px' }}/>
+                </Tooltip>
+            </CustomIconButton>
+          </Grid>
+    {
+        isModalOpen && (
+            <FormModal
+                show={isModalOpen}
+                onClose={handleCloseModal}
+                onSave={handleSaveData}
+                patient={initialPatientData}
+            />
+        )
+    }
+</>
+)
+    ;
 };
 
 export default Header;

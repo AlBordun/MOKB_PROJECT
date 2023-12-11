@@ -7,6 +7,7 @@ import FormModal from '../src/components/FormModal/FormModal';
 import axios from "axios";
 import AppPagination from "./components/Pagination";
 import {createTheme} from "@mui/system";
+import NewPatientsTable from "./components/PatientsTable/NewPatientsTable";
 
 
 
@@ -27,8 +28,8 @@ function App() {
                 onTicketClick={() => {}}
             />
 
-            <PatientsTable
-            />
+            {/*<PatientsTable/>*/}
+            <NewPatientsTable/>
         </div>
     );
 }
