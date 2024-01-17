@@ -1055,15 +1055,19 @@ const FormModal: React.FC<FormModalProps> = ({
                                     />
                                 </LocalizationProvider>
 
-                                <FormControl fullWidth sx={{
-                                    maxWidth: 120,
-                                    // margin: '6px',
-                                }}>
+                                <FormControl fullWidth
+                                //              sx={{
+                                //     maxWidth: 120,
+                                // }}
+                                >
                                     <InputLabel id="accomp_gender">Пол</InputLabel>
                                     <Select
+                                        sx = {{
+                                            maxWidth: 120,
+                                        }}
                                         labelId="accomp_gender"
                                         id="accomp_gender"
-                                        value={patientData?.accomp_gender ? patientData.accomp_gender.toString() : ''}
+                                        value={formData?.accomp_gender ? formData.accomp_gender.toString() : ''}
                                         onChange={(e) => handleChangeTag(e, 'accomp_gender')}
                                         label="Пол"
                                         >

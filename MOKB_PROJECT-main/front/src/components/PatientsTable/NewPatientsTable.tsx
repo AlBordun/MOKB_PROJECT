@@ -225,8 +225,7 @@ const NewPatientsTable: React.FC<newPatientsTableProps> = ({
             filterField(patient.passport_number, searchText) ||
             filterField(patient.registration_address, searchText) ||
             filterField(patient.actual_address, searchText) ||
-            filterField(patient.snils, searchText) ||
-            filterField(patient.insurance_policy, searchText);
+            filterField(patient.snils, searchText);
 
         // Пациент включается в финальный список, если он проходит обе проверки
         return isDateInRange && matchesSearch;
@@ -602,7 +601,7 @@ console.log("Forms :", patientForms)
                                                             <TableCell>Дата</TableCell>
                                                         </TableRow>
                                                     </TableHead>
-                                                    <TableBody>
+                                                    <TableBody >
                                                         {patientForms[patient.id]?.map((form) => (
                                                             <TableRow key={form.id}>
                                                                 <TableCell>

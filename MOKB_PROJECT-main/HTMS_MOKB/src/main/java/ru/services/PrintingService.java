@@ -12,7 +12,7 @@ public class PrintingService {
 
     private final WordDocumentService wordExportService;
 
-    public void printDocument(Integer patientId, Integer formId) throws IOException {
-        Resource document = wordExportService.exportPatientToWord(patientId, formId);
-    }
+//    public void printDocument(Integer patientId, Integer formId) throws IOException {
+//        Resource document = wordExportService.exportPatientToWord(patientId, formId);
+//    }
 }
